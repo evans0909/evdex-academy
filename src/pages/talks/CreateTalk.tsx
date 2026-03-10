@@ -1,4 +1,4 @@
-// src/pages/talks/CreateTalk.tsx - COMPLETE CODE
+// src/pages/talks/CreateTalk.tsx - COMPLETE CODE WITH JITSI OPTION
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Layout } from "@/components/layout/Layout";
@@ -9,6 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
+import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
 import { 
   Plus, 
@@ -18,7 +19,8 @@ import {
   GraduationCap,
   Link as LinkIcon,
   BookOpen,
-  AlertCircle
+  AlertCircle,
+  Video
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { db } from "@/firebase";
@@ -39,6 +41,7 @@ const CreateTalk = () => {
     startTime: "",
     duration: "2 hours",
     meetingLink: "",
+    enableJitsi: true, // NEW: Jitsi video enabled by default
     prerequisites: "",
     aboutAuthor: "",
     tags: [] as string[],
@@ -74,6 +77,13 @@ const CreateTalk = () => {
     setFormData(prev => ({
       ...prev,
       [name]: value
+    }));
+  };
+  
+  const handleCheckboxChange = (checked: boolean) => {
+    setFormData(prev => ({
+      ...prev,
+      enableJitsi: checked
     }));
   };
   
@@ -368,11 +378,11 @@ const CreateTalk = () => {
                   />
                 </div>
                 
-                {/* Meeting Link */}
+                {/* Meeting Link (Optional now) */}
                 <div className="space-y-2">
                   <Label htmlFor="meetingLink" className="flex items-center gap-2">
                     <LinkIcon className="w-4 h-4" />
-                    Meeting Link *
+                    External Meeting Link (Optional)
                   </Label>
                   <Input
                     id="meetingLink"
@@ -381,11 +391,33 @@ const CreateTalk = () => {
                     placeholder="https://meet.google.com/xyz-abcd-efg"
                     value={formData.meetingLink}
                     onChange={handleInputChange}
-                    required
                   />
                   <p className="text-sm text-muted-foreground">
-                    Zoom, Google Meet, or other video conference link
+                    Zoom, Google Meet, or other video conference link (optional since we have Jitsi)
                   </p>
+                </div>
+                
+                {/* Jitsi Video Lecture Option */}
+                <div className="space-y-2">
+                  <div className="flex items-start space-x-3">
+                    <Checkbox
+                      id="enableJitsi"
+                      checked={formData.enableJitsi}
+                      onCheckedChange={handleCheckboxChange}
+                    />
+                    <div className="grid gap-1.5 leading-none">
+                      <Label
+                        htmlFor="enableJitsi"
+                        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 flex items-center gap-2"
+                      >
+                        <Video className="w-4 h-4 text-green-600" />
+                        Enable Free Built-in Video Lecture (Jitsi)
+                      </Label>
+                      <p className="text-sm text-muted-foreground">
+                        Students will be able to join a free, built-in video conference directly from the talk page. No additional accounts needed.
+                      </p>
+                    </div>
+                  </div>
                 </div>
                 
                 {/* Tags */}
@@ -460,7 +492,8 @@ const CreateTalk = () => {
               <p>• Be clear about prerequisites so participants know what to expect</p>
               <p>• Choose a specific, descriptive title</p>
               <p>• Add relevant tags to help users find your talk</p>
-              <p>• Test your meeting link before the talk</p>
+              <p>• Jitsi video is free and built-in - no setup needed!</p>
+              <p>• Test your meeting link (if provided) before the talk</p>
               <p>• Be available 10 minutes early to help participants join</p>
             </CardContent>
           </Card>

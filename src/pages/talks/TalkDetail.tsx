@@ -1,4 +1,4 @@
-// src/pages/talks/TalkDetail.tsx - COMPLETE CODE
+// src/pages/talks/TalkDetail.tsx - COMPLETE CODE WITH JITSI VIDEO
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { Layout } from "@/components/layout/Layout";
@@ -13,7 +13,8 @@ import {
   GraduationCap, 
   Link as LinkIcon,
   BookOpen,
-  User
+  User,
+  Video
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { db } from "@/firebase";
@@ -25,6 +26,7 @@ import {
   updateDoc, 
   increment 
 } from "firebase/firestore";
+import { VideoLecture } from "@/components/VideoLecture";
 
 const TalkDetail = () => {
   const { id } = useParams();
@@ -32,6 +34,7 @@ const TalkDetail = () => {
   const [talk, setTalk] = useState<any>(null);
   const [isEnrolled, setIsEnrolled] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [showVideoLecture, setShowVideoLecture] = useState(false);
   
   useEffect(() => {
     if (id) {
@@ -132,6 +135,9 @@ const TalkDetail = () => {
       toast.error("Failed to unenroll");
     }
   };
+
+  // Generate a unique room name for Jitsi
+  const videoRoomName = talk ? `evdex-${talk.id}-${talk.title?.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '')}` : '';
   
   if (loading) {
     return (
@@ -300,23 +306,37 @@ const TalkDetail = () => {
                       </p>
                     </div>
                     
-                    {/* Meeting Link for enrolled users */}
-                    {talk.meetingLink && (
-                      <div className="space-y-2">
-                        <h4 className="font-medium flex items-center gap-2">
-                          <LinkIcon className="w-4 h-4" />
-                          How to Attend
-                        </h4>
-                        <p className="text-sm text-muted-foreground break-all">
-                          {talk.meetingLink}
-                        </p>
+                    {/* Meeting Information */}
+                    <div className="space-y-3">
+                      <h4 className="font-medium flex items-center gap-2">
+                        <LinkIcon className="w-4 h-4" />
+                        Join Lecture
+                      </h4>
+                      
+                      {/* External meeting link (if provided) */}
+                      {talk.meetingLink && (
                         <Button variant="outline" className="w-full" asChild>
                           <a href={talk.meetingLink} target="_blank" rel="noopener noreferrer">
-                            Join Meeting
+                            Open Meeting Link
                           </a>
                         </Button>
-                      </div>
-                    )}
+                      )}
+                      
+                      {/* Jitsi Video Lecture - Available for all talks */}
+                      <Button 
+                        className="w-full gap-2"
+                        onClick={() => setShowVideoLecture(!showVideoLecture)}
+                      >
+                        <Video className="w-4 h-4" />
+                        {showVideoLecture ? "Close Video Lecture" : "Launch Free Video Lecture"}
+                      </Button>
+                      
+                      {!talk.meetingLink && !talk.enableVideoLecture && (
+                        <p className="text-xs text-muted-foreground text-center">
+                          No meeting link provided. Check back closer to the talk date.
+                        </p>
+                      )}
+                    </div>
                     
                     <Button 
                       variant="destructive" 
@@ -348,6 +368,18 @@ const TalkDetail = () => {
             </Card>
           </div>
         </div>
+
+        {/* Video Lecture Section - Shows below both columns when active */}
+        {showVideoLecture && isEnrolled && (
+          <div className="mt-8">
+            <VideoLecture
+              roomName={videoRoomName}
+              userDisplayName={user?.displayName || user?.email?.split('@')[0] || "Student"}
+              userEmail={user?.email || ""}
+              onClose={() => setShowVideoLecture(false)}
+            />
+          </div>
+        )}
       </div>
     </Layout>
   );

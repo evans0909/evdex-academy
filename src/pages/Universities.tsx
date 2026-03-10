@@ -95,7 +95,7 @@ const Universities = () => {
                 {
                   year: 3,
                   description: "Advanced security topics and specialization",
-                  googleDriveFolderLink: "https://drive.google.com/drive/folders/1SKXdWHMJCS3QnGjTKTfYRKZo1BcuVfon",
+                  googleDriveFolderLink: "https://drive.google.com/drive/folders/1RCPBZnX83RepYokxLvPwlrwGRs67sbAJ",
                   courses: [],
                   studyMaterials: [],
                   pastPapers: []

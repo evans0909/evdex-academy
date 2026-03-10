@@ -23,6 +23,7 @@ import AdminDashboard from "./pages/AdminDashboard";
 import TalkDetail from "./pages/talks/TalkDetail"; // If named TalkDetail.tsx
 import CreateTalk from "./pages/talks/CreateTalk"; // If named CreateTalk.tsx  
 import MyTalks from "./pages/talks/MyTalks"; // If named MyTalks.tsx
+import Materials from "./pages/Materials";
 
 
 const queryClient = new QueryClient();
@@ -34,6 +35,7 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <Routes>
+          <Route path="/materials" element={<Materials />} />
           <Route path="/" element={<Index />} />
           <Route path="/talks" element={<Talks />} />
           <Route path="/universities" element={<Universities />} />

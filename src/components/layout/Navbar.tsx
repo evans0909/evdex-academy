@@ -14,6 +14,7 @@ const navLinks = [
   { name: "Repairs", path: "/repairs" },
   { name: "Donate", path: "/donate" },
   { name: "Contact", path: "/contact" },
+  { name: "Materials", path: "/materials" }, // ADD THIS LINE
 ];
 
 export const Navbar = () => {
