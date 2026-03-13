@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
-import { Code2, Mail, Github, Linkedin, Twitter } from "lucide-react";
+import { Code2, Mail } from "lucide-react";
+import { FaGithub, FaLinkedin, FaTwitter, FaFacebook, FaWhatsapp } from "react-icons/fa";
 
 export const Footer = () => {
   return (
@@ -49,7 +50,7 @@ export const Footer = () => {
             <ul className="space-y-2">
               {[
                 { name: "Create a Talk", path: "/talks/new" },
-                { name: "My Enrolled Talks", path: "/my-talks" },
+                { name: "My Enrolled Talks", path: "/talks/enrolled" },
                 { name: "Final Project", path: "/final-project" },
                 { name: "Schedule Meeting", path: "/contact" },
               ].map((link) => (
@@ -65,32 +66,85 @@ export const Footer = () => {
             </ul>
           </div>
 
-          {/* Contact */}
+          {/* Contact & Social */}
           <div>
-            <h4 className="font-display font-semibold mb-4">Contact</h4>
+            <h4 className="font-display font-semibold mb-4">Connect With Us</h4>
             <div className="space-y-3">
+              {/* Email */}
               <a
                 href="mailto:ev4nsbw4ly4@gmail.com"
-                className="flex items-center gap-2 text-primary-foreground/70 hover:text-secondary transition-colors text-sm"
+                className="flex items-center gap-2 text-primary-foreground/70 hover:text-secondary transition-colors text-sm group"
               >
-                <Mail className="w-4 h-4" />
+                <Mail className="w-4 h-4 group-hover:scale-110 transition-transform" />
                 ev4nsbw4ly4@gmail.com
               </a>
-              <div className="flex items-center gap-4 pt-2">
-                <a href="#" className="text-primary-foreground/70 hover:text-secondary transition-colors">
-                  <Github className="w-5 h-5" />
+
+              {/* Social Media Icons */}
+              <div className="flex flex-wrap items-center gap-4 pt-4">
+                {/* GitHub */}
+                <a 
+                  href="https://github.com/evans0909" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="text-primary-foreground/70 hover:text-secondary transition-all hover:scale-110"
+                  aria-label="GitHub"
+                >
+                  <FaGithub className="w-6 h-6" />
                 </a>
-                <a href="#" className="text-primary-foreground/70 hover:text-secondary transition-colors">
-                  <Linkedin className="w-5 h-5" />
+
+                {/* LinkedIn */}
+                <a 
+                  href="https://linkedin.com/in/evans-bwalya" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="text-primary-foreground/70 hover:text-secondary transition-all hover:scale-110"
+                  aria-label="LinkedIn"
+                >
+                  <FaLinkedin className="w-6 h-6" />
                 </a>
-                <a href="#" className="text-primary-foreground/70 hover:text-secondary transition-colors">
-                  <Twitter className="w-5 h-5" />
+
+                {/* Twitter/X */}
+                <a 
+                  href="https://twitter.com/evans_bwalya" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="text-primary-foreground/70 hover:text-secondary transition-all hover:scale-110"
+                  aria-label="Twitter"
+                >
+                  <FaTwitter className="w-6 h-6" />
+                </a>
+
+                {/* Facebook */}
+                <a 
+                  href="https://facebook.com/evans.bwalya" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="text-primary-foreground/70 hover:text-secondary transition-all hover:scale-110"
+                  aria-label="Facebook"
+                >
+                  <FaFacebook className="w-6 h-6" />
+                </a>
+
+                {/* WhatsApp */}
+                <a 
+                  href="https://wa.me/260973363119" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="text-primary-foreground/70 hover:text-secondary transition-all hover:scale-110"
+                  aria-label="WhatsApp"
+                >
+                  <FaWhatsapp className="w-6 h-6" />
                 </a>
               </div>
+
+              <p className="text-xs text-primary-foreground/50 pt-2">
+                Follow us on social media for updates
+              </p>
             </div>
           </div>
         </div>
 
+        {/* Bottom Bar */}
         <div className="border-t border-primary-foreground/10 mt-12 pt-8">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
             <p className="text-primary-foreground/60 text-sm">

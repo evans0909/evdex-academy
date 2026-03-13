@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Code2, Mail, Lock, Eye, EyeOff, User, CheckCircle } from "lucide-react";
 import { toast } from "sonner";
 import { auth } from "../firebase";
-import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
+import { createUserWithEmailAndPassword, updateProfile, sendEmailVerification } from "firebase/auth";
 import { createUserDocument } from "../services/userService";
 
 const passwordRequirements = [
@@ -65,12 +65,25 @@ const Register = () => {
         displayName: formData.name
       });
 
-      // Success - user is automatically logged in after registration
-      toast.success(`Welcome ${formData.name}! Account created successfully.`);
+      // Send email verification
+      await sendEmailVerification(userCredential.user);
+      console.log("Verification email sent to:", userCredential.user.email);
+
+      // Success message
+      toast.success(
+        <div>
+          <p className="font-bold">Welcome {formData.name}! 🎉</p>
+          <p className="text-sm mt-1">Please verify your email to continue.</p>
+        </div>,
+        { duration: 6000 }
+      );
+      
       console.log("Registered user:", userCredential.user);
       
-      // Redirect to home page
-      navigate("/");
+      // Redirect to verification screen
+      navigate("/verify-email", { 
+        state: { email: formData.email } 
+      });
       
     } catch (error: any) {
       console.error("Registration error:", error);
@@ -219,7 +232,7 @@ const Register = () => {
                     <div
                       key={req.label}
                       className={`flex items-center gap-2 text-xs ${
-                        req.check(formData.password) ? "text-success" : "text-muted-foreground"
+                        req.check(formData.password) ? "text-green-600 dark:text-green-400" : "text-muted-foreground"
                       }`}
                     >
                       <CheckCircle className="w-3 h-3" />
@@ -273,10 +286,15 @@ const Register = () => {
             </Link>
           </p>
           
-          {/* Firebase note */}
-          <div className="mt-6 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg text-sm text-blue-800 dark:text-blue-300">
-            <p className="font-medium">ℹ️ Real authentication is now enabled!</p>
-            <p className="mt-1">Your account will be created in Firebase and you'll be automatically logged in.</p>
+          {/* Email verification notice */}
+          <div className="mt-6 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg text-sm text-blue-800 dark:text-blue-300">
+            <p className="font-medium flex items-center gap-2">
+              <Mail className="w-4 h-4" />
+              Email verification required
+            </p>
+            <p className="mt-1">
+              After registration, you'll be redirected to verify your email before accessing your account.
+            </p>
           </div>
         </motion.div>
       </div>

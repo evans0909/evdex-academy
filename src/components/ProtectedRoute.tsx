@@ -33,8 +33,12 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
   }
 
   if (!user) {
-    // Redirect to login if not authenticated
     return <Navigate to="/login" replace />;
+  }
+
+  // Check if email is verified - redirect to verification page
+  if (!user.emailVerified) {
+    return <Navigate to="/verify-email" replace state={{ email: user.email }} />;
   }
 
   return <>{children}</>;

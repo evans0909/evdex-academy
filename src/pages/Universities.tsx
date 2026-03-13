@@ -1,3 +1,4 @@
+// src/pages/Universities.tsx - Updated with Google Drive links for all programs
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Layout } from "@/components/layout/Layout";
@@ -69,6 +70,7 @@ const Universities = () => {
           location: "Chinsali",
           website: "https://kmu.ac.zm",
           color: "from-purple-500 to-pink-600",
+          logo: "/public/images/CBU.jpeg", // <-- ADD THIS LINE
           established: 2018,
           programs: [
             {
@@ -116,78 +118,240 @@ const Universities = () => {
               id: "data-science",
               name: "Data Science",
               description: "Learn data analysis, machine learning, and statistical modeling techniques.",
-              years: Array.from({ length: 4 }, (_, i) => ({
-                year: i + 1,
-                description: `Year ${i + 1} Data Science curriculum`,
-                courses: [],
-                studyMaterials: [],
-                pastPapers: []
-              })),
+              years: [
+                {
+                  year: 1,
+                  description: "Foundation year for Data Science - programming, statistics, and mathematics",
+                  googleDriveFolderLink: "https://drive.google.com/drive/folders/1DS_Y1_PLACEHOLDER",
+                  courses: [],
+                  studyMaterials: [],
+                  pastPapers: []
+                },
+                {
+                  year: 2,
+                  description: "Intermediate Data Science - machine learning, data visualization, and databases",
+                  googleDriveFolderLink: "https://drive.google.com/drive/folders/1DS_Y2_PLACEHOLDER",
+                  courses: [],
+                  studyMaterials: [],
+                  pastPapers: []
+                },
+                {
+                  year: 3,
+                  description: "Advanced Data Science - deep learning, big data analytics, and specialized topics",
+                  googleDriveFolderLink: "https://drive.google.com/drive/folders/1DS_Y3_PLACEHOLDER",
+                  courses: [],
+                  studyMaterials: [],
+                  pastPapers: []
+                },
+                {
+                  year: 4,
+                  description: "Data Science capstone projects and industry preparation",
+                  googleDriveFolderLink: "https://drive.google.com/drive/folders/1DS_Y4_PLACEHOLDER",
+                  courses: [],
+                  studyMaterials: [],
+                  pastPapers: []
+                }
+              ],
               totalMaterials: 18
             },
             {
               id: "ict",
               name: "Information Communication Technology with Education",
               description: "Focus on networking, hardware, software, and telecommunications systems.",
-              years: Array.from({ length: 4 }, (_, i) => ({
-                year: i + 1,
-                description: `Year ${i + 1} ICT curriculum`,
-                courses: [],
-                studyMaterials: [],
-                pastPapers: []
-              })),
+              years: [
+                {
+                  year: 1,
+                  description: "Foundation year for ICT - computer fundamentals, programming basics, and mathematics",
+                  googleDriveFolderLink: "https://drive.google.com/drive/folders/1ICT_Y1_PLACEHOLDER",
+                  courses: [],
+                  studyMaterials: [],
+                  pastPapers: []
+                },
+                {
+                  year: 2,
+                  description: "Intermediate ICT - networking, databases, web development, and operating systems",
+                  googleDriveFolderLink: "https://drive.google.com/drive/folders/1ICT_Y2_PLACEHOLDER",
+                  courses: [],
+                  studyMaterials: [],
+                  pastPapers: []
+                },
+                {
+                  year: 3,
+                  description: "Advanced ICT - network security, system administration, and emerging technologies",
+                  googleDriveFolderLink: "https://drive.google.com/drive/folders/1ICT_Y3_PLACEHOLDER",
+                  courses: [],
+                  studyMaterials: [],
+                  pastPapers: []
+                },
+                {
+                  year: 4,
+                  description: "ICT capstone projects and professional practice",
+                  googleDriveFolderLink: "https://drive.google.com/drive/folders/1ICT_Y4_PLACEHOLDER",
+                  courses: [],
+                  studyMaterials: [],
+                  pastPapers: []
+                }
+              ],
               totalMaterials: 22
             },
             {
               id: "isba",
               name: "Information Business Analytics",
               description: "Combine business intelligence with data analytics for decision making.",
-              years: Array.from({ length: 4 }, (_, i) => ({
-                year: i + 1,
-                description: `Year ${i + 1} ISBA curriculum`,
-                courses: [],
-                studyMaterials: [],
-                pastPapers: []
-              })),
+              years: [
+                {
+                  year: 1,
+                  description: "Foundation year for ISBA - business fundamentals, programming, and statistics",
+                  googleDriveFolderLink: "https://drive.google.com/drive/folders/1oysw7juZwhJGnr4oJZ0lbOeCQcTs96C9?usp=sharing",
+                  courses: [],
+                  studyMaterials: [],
+                  pastPapers: []
+                },
+                {
+                  year: 2,
+                  description: "Intermediate ISBA - data analysis, business intelligence, and database management",
+                  googleDriveFolderLink: "https://drive.google.com/drive/folders/1oysw7juZwhJGnr4oJZ0lbOeCQcTs96C9?usp=sharing",
+                  courses: [],
+                  studyMaterials: [],
+                  pastPapers: []
+                },
+                {
+                  year: 3,
+                  description: "Advanced ISBA - predictive analytics, data mining, and business strategy",
+                  googleDriveFolderLink: "https://drive.google.com/drive/folders/1ISBA_Y3_PLACEHOLDER",
+                  courses: [],
+                  studyMaterials: [],
+                  pastPapers: []
+                },
+                {
+                  year: 4,
+                  description: "ISBA capstone projects and business analytics applications",
+                  googleDriveFolderLink: "https://drive.google.com/drive/folders/1ISBA_Y4_PLACEHOLDER",
+                  courses: [],
+                  studyMaterials: [],
+                  pastPapers: []
+                }
+              ],
               totalMaterials: 20
             },
             {
               id: "animal-science",
               name: "Animal Science",
               description: "Study animal biology, nutrition, breeding, and management.",
-              years: Array.from({ length: 4 }, (_, i) => ({
-                year: i + 1,
-                description: `Year ${i + 1} Animal Science curriculum`,
-                courses: [],
-                studyMaterials: [],
-                pastPapers: []
-              })),
+              years: [
+                {
+                  year: 1,
+                  description: "Foundation year for Animal Science - biology, chemistry, and animal anatomy",
+                  googleDriveFolderLink: "https://drive.google.com/drive/folders/1AS_Y1_PLACEHOLDER",
+                  courses: [],
+                  studyMaterials: [],
+                  pastPapers: []
+                },
+                {
+                  year: 2,
+                  description: "Intermediate Animal Science - nutrition, genetics, and animal physiology",
+                  googleDriveFolderLink: "https://drive.google.com/drive/folders/1AS_Y2_PLACEHOLDER",
+                  courses: [],
+                  studyMaterials: [],
+                  pastPapers: []
+                },
+                {
+                  year: 3,
+                  description: "Advanced Animal Science - breeding, health management, and production systems",
+                  googleDriveFolderLink: "https://drive.google.com/drive/folders/1AS_Y3_PLACEHOLDER",
+                  courses: [],
+                  studyMaterials: [],
+                  pastPapers: []
+                },
+                {
+                  year: 4,
+                  description: "Animal Science capstone projects and industry practice",
+                  googleDriveFolderLink: "https://drive.google.com/drive/folders/1AS_Y4_PLACEHOLDER",
+                  courses: [],
+                  studyMaterials: [],
+                  pastPapers: []
+                }
+              ],
               totalMaterials: 15
             },
             {
               id: "fisheries",
               name: "Fisheries & Aquaculture",
               description: "Learn fish farming, aquatic resource management, and conservation.",
-              years: Array.from({ length: 4 }, (_, i) => ({
-                year: i + 1,
-                description: `Year ${i + 1} Fisheries & Aquaculture curriculum`,
-                courses: [],
-                studyMaterials: [],
-                pastPapers: []
-              })),
+              years: [
+                {
+                  year: 1,
+                  description: "Foundation year for Fisheries - aquatic biology, chemistry, and ecology",
+                  googleDriveFolderLink: "https://drive.google.com/drive/folders/1FISH_Y1_PLACEHOLDER",
+                  courses: [],
+                  studyMaterials: [],
+                  pastPapers: []
+                },
+                {
+                  year: 2,
+                  description: "Intermediate Fisheries - fish farming, water quality, and aquaculture systems",
+                  googleDriveFolderLink: "https://drive.google.com/drive/folders/1FISH_Y2_PLACEHOLDER",
+                  courses: [],
+                  studyMaterials: [],
+                  pastPapers: []
+                },
+                {
+                  year: 3,
+                  description: "Advanced Fisheries - fish health, breeding, and resource management",
+                  googleDriveFolderLink: "https://drive.google.com/drive/folders/1FISH_Y3_PLACEHOLDER",
+                  courses: [],
+                  studyMaterials: [],
+                  pastPapers: []
+                },
+                {
+                  year: 4,
+                  description: "Fisheries capstone projects and industry placement",
+                  googleDriveFolderLink: "https://drive.google.com/drive/folders/1FISH_Y4_PLACEHOLDER",
+                  courses: [],
+                  studyMaterials: [],
+                  pastPapers: []
+                }
+              ],
               totalMaterials: 12
             },
             {
               id: "sustainable-agriculture",
               name: "Sustainable Agriculture",
               description: "Focus on eco-friendly farming practices and food security.",
-              years: Array.from({ length: 4 }, (_, i) => ({
-                year: i + 1,
-                description: `Year ${i + 1} Sustainable Agriculture curriculum`,
-                courses: [],
-                studyMaterials: [],
-                pastPapers: []
-              })),
+              years: [
+                {
+                  year: 1,
+                  description: "Foundation year for Sustainable Agriculture - crop science, soil science, and ecology",
+                  googleDriveFolderLink: "https://drive.google.com/drive/folders/1SA_Y1_PLACEHOLDER",
+                  courses: [],
+                  studyMaterials: [],
+                  pastPapers: []
+                },
+                {
+                  year: 2,
+                  description: "Intermediate Sustainable Agriculture - organic farming, pest management, and irrigation",
+                  googleDriveFolderLink: "https://drive.google.com/drive/folders/1SA_Y2_PLACEHOLDER",
+                  courses: [],
+                  studyMaterials: [],
+                  pastPapers: []
+                },
+                {
+                  year: 3,
+                  description: "Advanced Sustainable Agriculture - agroecology, conservation, and farming systems",
+                  googleDriveFolderLink: "https://drive.google.com/drive/folders/1SA_Y3_PLACEHOLDER",
+                  courses: [],
+                  studyMaterials: [],
+                  pastPapers: []
+                },
+                {
+                  year: 4,
+                  description: "Sustainable Agriculture capstone projects and community engagement",
+                  googleDriveFolderLink: "https://drive.google.com/drive/folders/1SA_Y4_PLACEHOLDER",
+                  courses: [],
+                  studyMaterials: [],
+                  pastPapers: []
+                }
+              ],
               totalMaterials: 14
             }
           ]
@@ -199,32 +363,95 @@ const Universities = () => {
           location: "Lusaka",
           website: "https://www.unza.zm",
           color: "from-blue-500 to-cyan-600",
+          logo: "/public/images/UNZA.jpeg",
           established: 1965,
           programs: [
             {
               id: "computer-science",
               name: "Computer Science",
               description: "Comprehensive computer science program with programming, algorithms, and systems.",
-              years: Array.from({ length: 4 }, (_, i) => ({
-                year: i + 1,
-                description: `Year ${i + 1} Computer Science curriculum`,
-                courses: [],
-                studyMaterials: [],
-                pastPapers: []
-              })),
+              years: [
+                {
+                  year: 1,
+                  description: "Foundation year for Computer Science - programming fundamentals, mathematics, and logic",
+                  googleDriveFolderLink: "https://drive.google.com/drive/folders/1UNZA_CS_Y1_PLACEHOLDER",
+                  courses: [],
+                  studyMaterials: [],
+                  pastPapers: []
+                },
+                {
+                  year: 2,
+                  description: "Intermediate Computer Science - data structures, algorithms, and software design",
+                  googleDriveFolderLink: "https://drive.google.com/drive/folders/1UNZA_CS_Y2_PLACEHOLDER",
+                  courses: [],
+                  studyMaterials: [],
+                  pastPapers: []
+                },
+                {
+                  year: 3,
+                  description: "Advanced Computer Science - databases, networks, and operating systems",
+                  googleDriveFolderLink: "https://drive.google.com/drive/folders/1UNZA_CS_Y3_PLACEHOLDER",
+                  courses: [],
+                  studyMaterials: [],
+                  pastPapers: []
+                },
+                {
+                  year: 4,
+                  description: "Computer Science capstone projects and specialization electives",
+                  googleDriveFolderLink: "https://drive.google.com/drive/folders/1UNZA_CS_Y4_PLACEHOLDER",
+                  courses: [],
+                  studyMaterials: [],
+                  pastPapers: []
+                }
+              ],
               totalMaterials: 30
             },
             {
               id: "medicine",
               name: "Medicine",
               description: "Medical doctor training program with clinical rotations.",
-              years: Array.from({ length: 5 }, (_, i) => ({
-                year: i + 1,
-                description: `Year ${i + 1} Medicine curriculum`,
-                courses: [],
-                studyMaterials: [],
-                pastPapers: []
-              })),
+              years: [
+                {
+                  year: 1,
+                  description: "Pre-clinical year 1 - anatomy, physiology, and biochemistry",
+                  googleDriveFolderLink: "https://drive.google.com/drive/folders/1UNZA_MED_Y1_PLACEHOLDER",
+                  courses: [],
+                  studyMaterials: [],
+                  pastPapers: []
+                },
+                {
+                  year: 2,
+                  description: "Pre-clinical year 2 - pathology, pharmacology, and microbiology",
+                  googleDriveFolderLink: "https://drive.google.com/drive/folders/1UNZA_MED_Y2_PLACEHOLDER",
+                  courses: [],
+                  studyMaterials: [],
+                  pastPapers: []
+                },
+                {
+                  year: 3,
+                  description: "Clinical year 1 - internal medicine, pediatrics, and surgery fundamentals",
+                  googleDriveFolderLink: "https://drive.google.com/drive/folders/1UNZA_MED_Y3_PLACEHOLDER",
+                  courses: [],
+                  studyMaterials: [],
+                  pastPapers: []
+                },
+                {
+                  year: 4,
+                  description: "Clinical year 2 - obstetrics, gynecology, and specialized rotations",
+                  googleDriveFolderLink: "https://drive.google.com/drive/folders/1UNZA_MED_Y4_PLACEHOLDER",
+                  courses: [],
+                  studyMaterials: [],
+                  pastPapers: []
+                },
+                {
+                  year: 5,
+                  description: "Clinical year 3 - advanced rotations, electives, and internship preparation",
+                  googleDriveFolderLink: "https://drive.google.com/drive/folders/1UNZA_MED_Y5_PLACEHOLDER",
+                  courses: [],
+                  studyMaterials: [],
+                  pastPapers: []
+                }
+              ],
               totalMaterials: 35
             }
           ]
@@ -236,32 +463,87 @@ const Universities = () => {
           location: "Kitwe",
           website: "https://www.cbu.ac.zm",
           color: "from-green-500 to-emerald-600",
+          logo: "/public/images/KMU.jpeg",
           established: 1987,
           programs: [
             {
               id: "mining-engineering",
               name: "Mining Engineering",
               description: "Specialized engineering for mineral extraction and processing.",
-              years: Array.from({ length: 4 }, (_, i) => ({
-                year: i + 1,
-                description: `Year ${i + 1} Mining Engineering curriculum`,
-                courses: [],
-                studyMaterials: [],
-                pastPapers: []
-              })),
+              years: [
+                {
+                  year: 1,
+                  description: "Foundation year for Mining Engineering - engineering fundamentals, mathematics, and geology",
+                  googleDriveFolderLink: "https://drive.google.com/drive/folders/1CBU_MIN_Y1_PLACEHOLDER",
+                  courses: [],
+                  studyMaterials: [],
+                  pastPapers: []
+                },
+                {
+                  year: 2,
+                  description: "Intermediate Mining Engineering - rock mechanics, mine ventilation, and surveying",
+                  googleDriveFolderLink: "https://drive.google.com/drive/folders/1CBU_MIN_Y2_PLACEHOLDER",
+                  courses: [],
+                  studyMaterials: [],
+                  pastPapers: []
+                },
+                {
+                  year: 3,
+                  description: "Advanced Mining Engineering - mineral processing, mine design, and safety",
+                  googleDriveFolderLink: "https://drive.google.com/drive/folders/1CBU_MIN_Y3_PLACEHOLDER",
+                  courses: [],
+                  studyMaterials: [],
+                  pastPapers: []
+                },
+                {
+                  year: 4,
+                  description: "Mining Engineering capstone projects and industry practice",
+                  googleDriveFolderLink: "https://drive.google.com/drive/folders/1CBU_MIN_Y4_PLACEHOLDER",
+                  courses: [],
+                  studyMaterials: [],
+                  pastPapers: []
+                }
+              ],
               totalMaterials: 28
             },
             {
               id: "business-administration",
               name: "Business Administration",
               description: "Management, finance, marketing, and entrepreneurship studies.",
-              years: Array.from({ length: 4 }, (_, i) => ({
-                year: i + 1,
-                description: `Year ${i + 1} Business Administration curriculum`,
-                courses: [],
-                studyMaterials: [],
-                pastPapers: []
-              })),
+              years: [
+                {
+                  year: 1,
+                  description: "Foundation year for Business Administration - management principles, economics, and accounting",
+                  googleDriveFolderLink: "https://drive.google.com/drive/folders/1CBU_BA_Y1_PLACEHOLDER",
+                  courses: [],
+                  studyMaterials: [],
+                  pastPapers: []
+                },
+                {
+                  year: 2,
+                  description: "Intermediate Business Administration - marketing, finance, and organizational behavior",
+                  googleDriveFolderLink: "https://drive.google.com/drive/folders/1CBU_BA_Y2_PLACEHOLDER",
+                  courses: [],
+                  studyMaterials: [],
+                  pastPapers: []
+                },
+                {
+                  year: 3,
+                  description: "Advanced Business Administration - strategic management, entrepreneurship, and international business",
+                  googleDriveFolderLink: "https://drive.google.com/drive/folders/1CBU_BA_Y3_PLACEHOLDER",
+                  courses: [],
+                  studyMaterials: [],
+                  pastPapers: []
+                },
+                {
+                  year: 4,
+                  description: "Business Administration capstone projects and business plan development",
+                  googleDriveFolderLink: "https://drive.google.com/drive/folders/1CBU_BA_Y4_PLACEHOLDER",
+                  courses: [],
+                  studyMaterials: [],
+                  pastPapers: []
+                }
+              ],
               totalMaterials: 25
             }
           ]
@@ -273,32 +555,87 @@ const Universities = () => {
           location: "Kabwe",
           website: "https://www.mu.ac.zm",
           color: "from-orange-500 to-red-600",
+          logo: "/public/images/MU.jpeg",
           established: 2008,
           programs: [
             {
               id: "education",
               name: "Education",
               description: "Teacher training and educational sciences program.",
-              years: Array.from({ length: 4 }, (_, i) => ({
-                year: i + 1,
-                description: `Year ${i + 1} Education curriculum`,
-                courses: [],
-                studyMaterials: [],
-                pastPapers: []
-              })),
+              years: [
+                {
+                  year: 1,
+                  description: "Foundation year for Education - educational psychology, philosophy, and teaching methods",
+                  googleDriveFolderLink: "https://drive.google.com/drive/folders/1MU_ED_Y1_PLACEHOLDER",
+                  courses: [],
+                  studyMaterials: [],
+                  pastPapers: []
+                },
+                {
+                  year: 2,
+                  description: "Intermediate Education - curriculum development, assessment, and classroom management",
+                  googleDriveFolderLink: "https://drive.google.com/drive/folders/1MU_ED_Y2_PLACEHOLDER",
+                  courses: [],
+                  studyMaterials: [],
+                  pastPapers: []
+                },
+                {
+                  year: 3,
+                  description: "Advanced Education - special education, educational technology, and research methods",
+                  googleDriveFolderLink: "https://drive.google.com/drive/folders/1MU_ED_Y3_PLACEHOLDER",
+                  courses: [],
+                  studyMaterials: [],
+                  pastPapers: []
+                },
+                {
+                  year: 4,
+                  description: "Education teaching practice and capstone projects",
+                  googleDriveFolderLink: "https://drive.google.com/drive/folders/1MU_ED_Y4_PLACEHOLDER",
+                  courses: [],
+                  studyMaterials: [],
+                  pastPapers: []
+                }
+              ],
               totalMaterials: 20
             },
             {
               id: "accountancy",
               name: "Accountancy",
               description: "Financial accounting, auditing, and taxation studies.",
-              years: Array.from({ length: 4 }, (_, i) => ({
-                year: i + 1,
-                description: `Year ${i + 1} Accountancy curriculum`,
-                courses: [],
-                studyMaterials: [],
-                pastPapers: []
-              })),
+              years: [
+                {
+                  year: 1,
+                  description: "Foundation year for Accountancy - financial accounting, business math, and economics",
+                  googleDriveFolderLink: "https://drive.google.com/drive/folders/1MU_ACC_Y1_PLACEHOLDER",
+                  courses: [],
+                  studyMaterials: [],
+                  pastPapers: []
+                },
+                {
+                  year: 2,
+                  description: "Intermediate Accountancy - management accounting, auditing, and corporate law",
+                  googleDriveFolderLink: "https://drive.google.com/drive/folders/1MU_ACC_Y2_PLACEHOLDER",
+                  courses: [],
+                  studyMaterials: [],
+                  pastPapers: []
+                },
+                {
+                  year: 3,
+                  description: "Advanced Accountancy - taxation, financial reporting, and advanced auditing",
+                  googleDriveFolderLink: "https://drive.google.com/drive/folders/1MU_ACC_Y3_PLACEHOLDER",
+                  courses: [],
+                  studyMaterials: [],
+                  pastPapers: []
+                },
+                {
+                  year: 4,
+                  description: "Accountancy capstone projects and professional practice",
+                  googleDriveFolderLink: "https://drive.google.com/drive/folders/1MU_ACC_Y4_PLACEHOLDER",
+                  courses: [],
+                  studyMaterials: [],
+                  pastPapers: []
+                }
+              ],
               totalMaterials: 22
             }
           ]
@@ -396,39 +733,119 @@ const Universities = () => {
     <Layout>
       <AuthRequiredDialog />
       
-      {/* Hero Section */}
-      <section className="relative bg-gradient-to-br from-primary to-purple-600 py-20 overflow-hidden">
-        <div className="absolute inset-0 bg-grid-white/[0.02] bg-grid" />
-        <div className="container relative mx-auto px-4">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            className="max-w-3xl mx-auto text-center"
-          >
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-4">
-              Zambian Universities
-            </h1>
-            <p className="text-lg md:text-xl text-white/80 mb-8">
-              Access comprehensive study materials, past papers, and course resources from top universities in Zambia.
-            </p>
-            <div className="flex flex-wrap justify-center gap-3">
-              <Badge variant="secondary" className="bg-white/20 text-white">
-                <Database className="w-3 h-3 mr-1" />
-                {universities.reduce((acc, uni) => acc + uni.programs.length, 0)} Programs
-              </Badge>
-              <Badge variant="secondary" className="bg-white/20 text-white">
-                <Users className="w-3 h-3 mr-1" />
-                10,000+ Materials
-              </Badge>
-              <Badge variant="secondary" className="bg-white/20 text-white">
-                <Calendar className="w-3 h-3 mr-1" />
-                Updated Weekly
-              </Badge>
-            </div>
-          </motion.div>
+      {/* Hero Section - Zambian Flag Theme */}
+<section className="relative py-20 overflow-hidden">
+  {/* Zambian Flag Background Stripes */}
+  <div className="absolute inset-0">
+    {/* Green stripe (top) - representing agriculture */}
+    <div className="absolute top-0 left-0 w-full h-1/3 bg-gradient-to-r from-green-700 to-green-500"></div>
+    {/* Red stripe (middle) - representing the struggle for freedom */}
+    <div className="absolute top-1/3 left-0 w-full h-1/3 bg-gradient-to-r from-red-600 to-red-400"></div>
+    {/* Black stripe (bottom) - representing the people */}
+    <div className="absolute top-2/3 left-0 w-full h-1/3 bg-gradient-to-r from-black to-gray-800"></div>
+    
+    {/* Orange Eagle (overlay) - representing freedom */}
+    <div className="absolute inset-0 bg-gradient-to-br from-orange-500/20 to-yellow-500/20 mix-blend-overlay"></div>
+    
+    {/* Eagle pattern overlay */}
+    <div className="absolute inset-0 opacity-10">
+      <svg className="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
+        <path d="M50,10 L60,40 L90,40 L65,55 L75,85 L50,65 L25,85 L35,55 L10,40 L40,40 Z" 
+              fill="orange" className="animate-pulse-slow"/>
+      </svg>
+    </div>
+  </div>
+
+  {/* Content */}
+  <div className="container relative mx-auto px-4 py-16">
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.6 }}
+      className="max-w-3xl mx-auto text-center"
+    >
+      {/* Decorative Zambian Pattern */}
+      <motion.div 
+        initial={{ scale: 0 }}
+        animate={{ scale: 1 }}
+        transition={{ duration: 0.5, delay: 0.2 }}
+        className="flex justify-center gap-1 mb-6"
+      >
+        {['bg-green-600', 'bg-red-600', 'bg-black', 'bg-orange-500'].map((color, i) => (
+          <div key={i} className={`w-2 h-2 rounded-full ${color} shadow-lg`} />
+        ))}
+      </motion.div>
+
+      {/* Main Title with Decorative Styling */}
+      <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4 leading-tight">
+        <span className="inline-block transform hover:scale-105 transition-transform">
+          <span className="text-green-600 drop-shadow-lg">Z</span>
+          <span className="text-red-600 drop-shadow-lg">a</span>
+          <span className="text-black drop-shadow-lg">m</span>
+          <span className="text-orange-500 drop-shadow-lg">b</span>
+          <span className="text-green-600 drop-shadow-lg">i</span>
+          <span className="text-red-600 drop-shadow-lg">a</span>
+          <span className="text-black drop-shadow-lg">n</span>
+        </span>{" "}
+        <span className="relative">
+          <span className="relative z-10 bg-clip-text text-transparent bg-gradient-to-r from-green-600 via-red-600 to-black font-extrabold">
+            Universities
+          </span>
+          {/* Decorative underline */}
+          <motion.div 
+            initial={{ width: 0 }}
+            animate={{ width: "100%" }}
+            transition={{ duration: 0.8, delay: 0.5 }}
+            className="absolute -bottom-2 left-0 h-1 bg-gradient-to-r from-green-600 via-red-600 to-orange-500 rounded-full"
+          />
+        </span>
+      </h1>
+
+      {/* Decorative Eagle Divider */}
+      <motion.div
+        initial={{ scaleX: 0 }}
+        animate={{ scaleX: 1 }}
+        transition={{ duration: 0.6, delay: 0.3 }}
+        className="w-24 h-1 mx-auto mb-6 bg-gradient-to-r from-green-600 via-red-600 to-black rounded-full"
+      />
+
+      <p className="text-lg md:text-xl text-gray-700 dark:text-gray-300 mb-8 font-medium">
+        Access comprehensive study materials, past papers, and course resources from top universities in Zambia.
+      </p>
+
+      {/* Stats with Zambian Flag Colors */}
+      <div className="flex flex-wrap justify-center gap-3 mb-8">
+        <Badge variant="secondary" className="bg-green-100 text-green-800 border-2 border-green-600 shadow-md">
+          <Database className="w-3 h-3 mr-1" />
+          {universities.reduce((acc, uni) => acc + uni.programs.length, 0)} Programs
+        </Badge>
+        <Badge variant="secondary" className="bg-red-100 text-red-800 border-2 border-red-600 shadow-md">
+          <Users className="w-3 h-3 mr-1" />
+          10,000+ Materials
+        </Badge>
+        <Badge variant="secondary" className="bg-black text-white border-2 border-orange-500 shadow-md">
+          <Calendar className="w-3 h-3 mr-1" />
+          Updated Weekly
+        </Badge>
+      </div>
+
+      {/* Zambian Flag Mini Representation */}
+      <motion.div 
+        initial={{ y: 20, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 0.5, delay: 0.7 }}
+        className="flex justify-center items-center gap-1 p-2 bg-white/80 dark:bg-gray-800/80 rounded-full inline-flex mx-auto shadow-lg"
+      >
+        <div className="w-6 h-6 rounded-full bg-green-600"></div>
+        <div className="w-6 h-6 rounded-full bg-red-600"></div>
+        <div className="w-6 h-6 rounded-full bg-black"></div>
+        <div className="w-6 h-6 rounded-full bg-orange-500 flex items-center justify-center text-white text-xs font-bold">
+          🇿🇲
         </div>
-      </section>
+      </motion.div>
+    </motion.div>
+  </div>
+</section>
 
       {/* Universities List */}
       <section className="py-12 bg-background">
@@ -457,9 +874,22 @@ const Universities = () => {
                     className="w-full flex items-center justify-between p-6 hover:bg-muted/30 transition-colors"
                   >
                     <div className="flex items-center gap-4">
-                      <div className={`w-16 h-16 rounded-xl bg-gradient-to-br ${uni.color} flex items-center justify-center shadow-lg`}>
-                        <Building className="w-8 h-8 text-white" />
-                      </div>
+                      {uni.logo ? (
+                        <img 
+                          src={uni.logo} 
+                          alt={`${uni.name} logo`}
+                          className="w-16 h-16 rounded-xl object-contain bg-white p-2 shadow-lg"
+                          onError={(e) => {
+                          // Fallback if image fails to load
+                          e.currentTarget.style.display = 'none';
+                          e.currentTarget.parentElement?.classList.add('bg-gradient-to-br', uni.color);
+                       }}
+                     />
+                  ) : (
+                    <div className={`w-16 h-16 rounded-xl bg-gradient-to-br ${uni.color} flex items-center justify-center shadow-lg`}>
+                     <Building className="w-8 h-8 text-white" />
+                  </div>
+                )}
                       <div className="text-left">
                         <div className="flex items-center gap-2 mb-1">
                           <h3 className="text-xl font-bold text-foreground">

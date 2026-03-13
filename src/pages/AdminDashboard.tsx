@@ -31,15 +31,18 @@ import {
   Check,
   Clock,
   User,
-  Tag
+  Tag,
+  GraduationCap,
+  UserMinus
 } from "lucide-react";
+import { Layout } from "@/components/layout/Layout"; // 👈 ONLY THIS LINE ADDED
 
 interface User {
   id: string;
   uid: string;
   email: string;
   displayName?: string;
-  role: "admin" | "user";
+  role: "admin" | "tutor" | "user";
   emailVerified: boolean;
   createdAt: string;
   lastLogin?: string;
@@ -78,6 +81,7 @@ const AdminDashboard = () => {
   const [stats, setStats] = useState({
     total: 0,
     admins: 0,
+    tutors: 0,
     verified: 0,
     active: 0,
     totalMessages: 0,
@@ -100,7 +104,6 @@ const AdminDashboard = () => {
       }
       
       try {
-        // Method 1: Try to get document by UID first
         const userByUidRef = doc(db, "users", currentUser.uid);
         const userByUidDoc = await getDoc(userByUidRef);
         
@@ -108,7 +111,6 @@ const AdminDashboard = () => {
           const userData = userByUidDoc.data();
           setIsAdmin(userData.role === "admin");
         } else {
-          // Method 2: Try to find by email
           const usersRef = collection(db, "users");
           const q = query(usersRef, where("email", "==", currentUser.email));
           const querySnapshot = await getDocs(q);
@@ -175,12 +177,16 @@ const AdminDashboard = () => {
           }
         }
         
+        let role: "admin" | "tutor" | "user" = "user";
+        if (data.role === "admin") role = "admin";
+        else if (data.role === "tutor") role = "tutor";
+        
         usersList.push({
           id: doc.id,
           uid: data.uid || doc.id,
           email: data.email || "No email",
           displayName: data.displayName || data.email?.split('@')[0] || "User",
-          role: data.role === "admin" ? "admin" : "user",
+          role,
           emailVerified: data.emailVerified || false,
           createdAt,
           lastLogin,
@@ -188,7 +194,6 @@ const AdminDashboard = () => {
         });
       });
       
-      // Sort by newest first
       usersList.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
       
       setUsers(usersList);
@@ -248,13 +253,11 @@ const AdminDashboard = () => {
         });
       });
       
-      // Sort by newest first
       messagesList.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
       
       setContactMessages(messagesList);
       setFilteredMessages(messagesList);
       
-      // Update stats
       setStats(prev => ({
         ...prev,
         totalMessages: messagesList.length,
@@ -285,6 +288,7 @@ const AdminDashboard = () => {
       ...prev,
       total: users.length,
       admins: users.filter(u => u.role === "admin").length,
+      tutors: users.filter(u => u.role === "tutor").length,
       verified: users.filter(u => u.emailVerified).length,
       active: users.filter(u => u.isActive !== false && u.lastLogin).length
     }));
@@ -308,11 +312,9 @@ const AdminDashboard = () => {
       
       const userRef = doc(db, "users", userId);
       
-      // Get current document to preserve data
       const userDoc = await getDoc(userRef);
       const currentData = userDoc.exists() ? userDoc.data() : {};
       
-      // Update user role to admin
       await updateDoc(userRef, { 
         role: "admin",
         updatedAt: new Date(),
@@ -323,7 +325,6 @@ const AdminDashboard = () => {
         emailVerified: currentData.emailVerified || false
       });
       
-      // Update local state
       setUsers(users.map(user => 
         user.id === userId ? { ...user, role: "admin" as const } : user
       ));
@@ -360,10 +361,60 @@ const AdminDashboard = () => {
     }
   };
 
+  const handleMakeTutor = async (userId: string) => {
+    try {
+      const userToUpdate = users.find(u => u.id === userId);
+      if (!userToUpdate) return;
+      
+      const userRef = doc(db, "users", userId);
+      
+      const userDoc = await getDoc(userRef);
+      const currentData = userDoc.exists() ? userDoc.data() : {};
+      
+      await updateDoc(userRef, { 
+        role: "tutor",
+        updatedAt: new Date(),
+        isActive: true,
+        uid: currentData.uid || userId,
+        email: currentData.email || userToUpdate.email,
+        displayName: currentData.displayName || userToUpdate.displayName,
+        emailVerified: currentData.emailVerified || false
+      });
+      
+      setUsers(users.map(user => 
+        user.id === userId ? { ...user, role: "tutor" as const } : user
+      ));
+      
+      toast.success(`${userToUpdate.email || "User"} promoted to tutor`);
+    } catch (error) {
+      toast.error("Failed to update user role");
+    }
+  };
+
+  const handleRemoveTutor = async (userId: string) => {
+    try {
+      const userToUpdate = users.find(u => u.id === userId);
+      if (!userToUpdate) return;
+      
+      const userRef = doc(db, "users", userId);
+      await updateDoc(userRef, { 
+        role: "user",
+        updatedAt: new Date() 
+      });
+      
+      setUsers(users.map(user => 
+        user.id === userId ? { ...user, role: "user" as const } : user
+      ));
+      
+      toast.success(`${userToUpdate.email || "User"} tutor privileges removed`);
+    } catch (error) {
+      toast.error("Failed to update user role");
+    }
+  };
+
   const handleViewMessage = async (message: ContactMessage) => {
     setSelectedMessage(message);
     
-    // Mark as read if it's new
     if (message.status === "new") {
       try {
         const messageRef = doc(db, "contactMessages", message.id);
@@ -372,7 +423,6 @@ const AdminDashboard = () => {
           readAt: new Date().toISOString()
         });
         
-        // Update local state
         setContactMessages(contactMessages.map(m => 
           m.id === message.id ? { ...m, status: "read", readAt: new Date().toISOString() } : m
         ));
@@ -395,7 +445,6 @@ const AdminDashboard = () => {
         repliedAt: new Date().toISOString()
       });
       
-      // Update local state
       setContactMessages(contactMessages.map(m => 
         m.id === messageId ? { ...m, status: "replied", repliedAt: new Date().toISOString() } : m
       ));
@@ -421,7 +470,6 @@ const AdminDashboard = () => {
         status: "resolved"
       });
       
-      // Update local state
       setContactMessages(contactMessages.map(m => 
         m.id === messageId ? { ...m, status: "resolved" } : m
       ));
@@ -447,7 +495,6 @@ const AdminDashboard = () => {
       const messageRef = doc(db, "contactMessages", messageId);
       await deleteDoc(messageRef);
       
-      // Update local state
       setContactMessages(contactMessages.filter(m => m.id !== messageId));
       setFilteredMessages(filteredMessages.filter(m => m.id !== messageId));
       
@@ -465,13 +512,8 @@ const AdminDashboard = () => {
     if (!selectedMessage || !replyText.trim()) return;
     
     try {
-      // Here you would send the email using your email service
-      // For now, just mark as replied
       await handleMarkAsReplied(selectedMessage.id);
-      
-      // Clear reply text
       setReplyText("");
-      
       toast.success("Reply sent and marked as replied");
     } catch (error) {
       toast.error("Failed to send reply");
@@ -510,6 +552,17 @@ const AdminDashboard = () => {
     }
   };
 
+  const getRoleBadge = (role: string) => {
+    switch(role) {
+      case "admin":
+        return <Badge className="bg-purple-600 text-white">Admin</Badge>;
+      case "tutor":
+        return <Badge className="bg-green-600 text-white">Tutor</Badge>;
+      default:
+        return <Badge variant="secondary">User</Badge>;
+    }
+  };
+
   const testFirestoreConnection = async () => {
     try {
       toast.loading("Testing Firestore connection...");
@@ -526,7 +579,6 @@ const AdminDashboard = () => {
     }
   };
 
-  // Show loading state while checking auth
   if (authLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -535,7 +587,6 @@ const AdminDashboard = () => {
     );
   }
 
-  // If not admin, show access denied
   if (!isAdmin) {
     return (
       <div className="min-h-screen flex items-center justify-center p-4">
@@ -569,539 +620,580 @@ const AdminDashboard = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background to-muted p-4 md:p-8 pt-24">
-      <div className="max-w-7xl mx-auto">
-        {/* Header */}
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
-          <div>
-            <h1 className="text-3xl md:text-4xl font-bold text-foreground flex items-center gap-3">
-              <Shield className="w-8 h-8 text-purple-600" />
-              Admin Dashboard
-            </h1>
-            <p className="text-muted-foreground mt-2">
-              Manage users, contact messages, and system configuration
-            </p>
+    <Layout> {/* 👈 ONLY THIS LINE ADDED (opening tag) */}
+      <div className="min-h-screen bg-gradient-to-b from-background to-muted p-4 md:p-8 pt-24">
+        <div className="max-w-7xl mx-auto">
+          {/* Header */}
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
+            <div>
+              <h1 className="text-3xl md:text-4xl font-bold text-foreground flex items-center gap-3">
+                <Shield className="w-8 h-8 text-purple-600" />
+                Admin Dashboard
+              </h1>
+              <p className="text-muted-foreground mt-2">
+                Manage users, tutors, contact messages, and system configuration
+              </p>
+            </div>
+            <div className="flex items-center gap-2">
+              <Badge variant="default" className="bg-purple-600 px-3 py-1">
+                <Shield className="w-3 h-3 mr-1" />
+                Administrator
+              </Badge>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={testFirestoreConnection}
+                className="flex items-center gap-2"
+              >
+                <Database className="w-4 h-4" />
+                Test Connection
+              </Button>
+            </div>
           </div>
-          <div className="flex items-center gap-2">
-            <Badge variant="default" className="bg-purple-600 px-3 py-1">
-              <Shield className="w-3 h-3 mr-1" />
-              Administrator
-            </Badge>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={testFirestoreConnection}
-              className="flex items-center gap-2"
-            >
-              <Database className="w-4 h-4" />
-              Test Connection
-            </Button>
-          </div>
-        </div>
 
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4 mb-8">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Users</CardTitle>
-              <Users className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{stats.total}</div>
-              <p className="text-xs text-muted-foreground">Registered accounts</p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Administrators</CardTitle>
-              <Shield className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{stats.admins}</div>
-              <p className="text-xs text-muted-foreground">Admin accounts</p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Verified</CardTitle>
-              <CheckCircle className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{stats.verified}</div>
-              <p className="text-xs text-muted-foreground">Email verified</p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Active</CardTitle>
-              <BarChart3 className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{stats.active}</div>
-              <p className="text-xs text-muted-foreground">Recently active</p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Messages</CardTitle>
-              <Mail className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{stats.totalMessages}</div>
-              <p className="text-xs text-muted-foreground">{stats.newMessages} new</p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Status</CardTitle>
-              <Settings className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-green-600">Online</div>
-              <p className="text-xs text-muted-foreground">All systems operational</p>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Main Content Tabs */}
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-8">
-          <TabsList className="grid grid-cols-2 w-full max-w-md">
-            <TabsTrigger value="users" className="flex items-center gap-2">
-              <UserCog className="w-4 h-4" />
-              User Management
-            </TabsTrigger>
-            <TabsTrigger value="messages" className="flex items-center gap-2">
-              <Mail className="w-4 h-4" />
-              Contact Messages
-              {stats.newMessages > 0 && (
-                <Badge className="ml-2 bg-red-500 text-white px-2 py-0.5 text-xs">
-                  {stats.newMessages}
-                </Badge>
-              )}
-            </TabsTrigger>
-          </TabsList>
-
-          {/* Users Tab */}
-          <TabsContent value="users">
+          {/* Stats Cards - Updated with Tutors */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-7 gap-4 mb-8">
             <Card>
-              <CardHeader>
-                <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                  <div>
-                    <CardTitle className="flex items-center gap-2">
-                      <UserCog className="w-5 h-5" />
-                      User Management
-                    </CardTitle>
-                    <CardDescription>
-                      Manage user accounts and permissions
-                    </CardDescription>
-                  </div>
-                  <div className="flex items-center gap-2 w-full md:w-auto">
-                    <div className="relative flex-1 md:flex-none">
-                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                      <Input
-                        placeholder="Search users..."
-                        className="pl-9"
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                      />
-                    </div>
-                    <Button 
-                      variant="outline" 
-                      onClick={fetchUsers} 
-                      disabled={loading}
-                      className="flex items-center gap-2"
-                    >
-                      <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
-                      Refresh
-                    </Button>
-                  </div>
-                </div>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Total Users</CardTitle>
+                <Users className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                {loading ? (
-                  <div className="text-center py-8">
-                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
-                    <p className="mt-2 text-muted-foreground">Loading users...</p>
-                  </div>
-                ) : filteredUsers.length === 0 ? (
-                  <div className="text-center py-8">
-                    <Database className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-                    <h3 className="text-lg font-semibold mb-2">No users found</h3>
-                    <p className="text-muted-foreground mb-4">
-                      {searchQuery ? "Try a different search term" : "No users in database yet"}
-                    </p>
-                    <Button onClick={fetchUsers}>
-                      <RefreshCw className="w-4 h-4 mr-2" />
-                      Refresh Data
-                    </Button>
-                  </div>
-                ) : (
-                  <div className="overflow-x-auto">
-                    <Table>
-                      <TableHeader>
-                        <TableRow>
-                          <TableHead>User</TableHead>
-                          <TableHead>Role</TableHead>
-                          <TableHead>Status</TableHead>
-                          <TableHead>Created</TableHead>
-                          <TableHead>Last Login</TableHead>
-                          <TableHead className="text-right">Actions</TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {filteredUsers.map((user) => (
-                          <TableRow key={user.id}>
-                            <TableCell>
-                              <div>
-                                <p className="font-medium">{user.displayName || user.email.split('@')[0]}</p>
-                                <p className="text-sm text-muted-foreground">{user.email}</p>
-                                {user.id === currentUser?.uid && (
-                                  <Badge variant="outline" className="mt-1 text-xs">
-                                    Current User
-                                  </Badge>
-                                )}
-                              </div>
-                            </TableCell>
-                            <TableCell>
-                              <Badge 
-                                variant={user.role === "admin" ? "default" : "secondary"}
-                                className={user.role === "admin" ? "bg-purple-600" : ""}
-                              >
-                                {user.role}
-                              </Badge>
-                            </TableCell>
-                            <TableCell>
-                              <div className="flex items-center gap-2">
-                                {user.emailVerified ? (
-                                  <CheckCircle className="w-4 h-4 text-green-500" />
-                                ) : (
-                                  <XCircle className="w-4 h-4 text-amber-500" />
-                                )}
-                                <span>{user.emailVerified ? "Verified" : "Not Verified"}</span>
-                              </div>
-                            </TableCell>
-                            <TableCell>
-                              {new Date(user.createdAt).toLocaleDateString()}
-                              <br />
-                              <span className="text-xs text-muted-foreground">
-                                {new Date(user.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                              </span>
-                            </TableCell>
-                            <TableCell>
-                              {user.lastLogin ? (
-                                <>
-                                  {new Date(user.lastLogin).toLocaleDateString()}
-                                  <br />
-                                  <span className="text-xs text-muted-foreground">
-                                    {new Date(user.lastLogin).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                                  </span>
-                                </>
-                              ) : (
-                                "Never"
-                              )}
-                            </TableCell>
-                            <TableCell className="text-right">
-                              <div className="flex justify-end gap-2">
-                                {user.role === "admin" ? (
-                                  <Button
-                                    size="sm"
-                                    variant="outline"
-                                    onClick={() => handleRemoveAdmin(user.id)}
-                                    disabled={user.id === currentUser?.uid}
-                                  >
-                                    Remove Admin
-                                  </Button>
-                                ) : (
-                                  <Button
-                                    size="sm"
-                                    onClick={() => handleMakeAdmin(user.id)}
-                                    className="flex items-center gap-1"
-                                  >
-                                    <UserPlus className="w-3 h-3" />
-                                    Make Admin
-                                  </Button>
-                                )}
-                              </div>
-                            </TableCell>
-                          </TableRow>
-                        ))}
-                      </TableBody>
-                    </Table>
-                  </div>
-                )}
+                <div className="text-2xl font-bold">{stats.total}</div>
+                <p className="text-xs text-muted-foreground">Registered accounts</p>
               </CardContent>
             </Card>
-          </TabsContent>
 
-          {/* Messages Tab */}
-          <TabsContent value="messages">
-            <div className="grid lg:grid-cols-3 gap-6">
-              {/* Messages List */}
-              <Card className="lg:col-span-2">
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Administrators</CardTitle>
+                <Shield className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{stats.admins}</div>
+                <p className="text-xs text-muted-foreground">Admin accounts</p>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Tutors</CardTitle>
+                <GraduationCap className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{stats.tutors || 0}</div>
+                <p className="text-xs text-muted-foreground">Tutor accounts</p>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Verified</CardTitle>
+                <CheckCircle className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{stats.verified}</div>
+                <p className="text-xs text-muted-foreground">Email verified</p>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Active</CardTitle>
+                <BarChart3 className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{stats.active}</div>
+                <p className="text-xs text-muted-foreground">Recently active</p>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Messages</CardTitle>
+                <Mail className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{stats.totalMessages}</div>
+                <p className="text-xs text-muted-foreground">{stats.newMessages} new</p>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Status</CardTitle>
+                <Settings className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold text-green-600">Online</div>
+                <p className="text-xs text-muted-foreground">All systems operational</p>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Main Content Tabs */}
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-8">
+            <TabsList className="grid grid-cols-2 w-full max-w-md">
+              <TabsTrigger value="users" className="flex items-center gap-2">
+                <UserCog className="w-4 h-4" />
+                User Management
+              </TabsTrigger>
+              <TabsTrigger value="messages" className="flex items-center gap-2">
+                <Mail className="w-4 h-4" />
+                Contact Messages
+                {stats.newMessages > 0 && (
+                  <Badge className="ml-2 bg-red-500 text-white px-2 py-0.5 text-xs">
+                    {stats.newMessages}
+                  </Badge>
+                )}
+              </TabsTrigger>
+            </TabsList>
+
+            {/* Users Tab */}
+            <TabsContent value="users">
+              <Card>
                 <CardHeader>
                   <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                     <div>
                       <CardTitle className="flex items-center gap-2">
-                        <Mail className="w-5 h-5" />
-                        Contact Messages
+                        <UserCog className="w-5 h-5" />
+                        User Management
                       </CardTitle>
                       <CardDescription>
-                        View and manage contact form submissions
+                        Manage user accounts and permissions (Admins, Tutors, and Users)
                       </CardDescription>
                     </div>
                     <div className="flex items-center gap-2 w-full md:w-auto">
                       <div className="relative flex-1 md:flex-none">
                         <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                         <Input
-                          placeholder="Search messages..."
+                          placeholder="Search users..."
                           className="pl-9"
-                          value={messageSearch}
-                          onChange={(e) => setMessageSearch(e.target.value)}
+                          value={searchQuery}
+                          onChange={(e) => setSearchQuery(e.target.value)}
                         />
                       </div>
                       <Button 
                         variant="outline" 
-                        onClick={fetchContactMessages} 
-                        disabled={messagesLoading}
+                        onClick={fetchUsers} 
+                        disabled={loading}
                         className="flex items-center gap-2"
                       >
-                        <RefreshCw className={`w-4 h-4 ${messagesLoading ? 'animate-spin' : ''}`} />
+                        <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
                         Refresh
                       </Button>
                     </div>
                   </div>
                 </CardHeader>
                 <CardContent>
-                  {messagesLoading ? (
+                  {loading ? (
                     <div className="text-center py-8">
                       <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
-                      <p className="mt-2 text-muted-foreground">Loading messages...</p>
+                      <p className="mt-2 text-muted-foreground">Loading users...</p>
                     </div>
-                  ) : filteredMessages.length === 0 ? (
+                  ) : filteredUsers.length === 0 ? (
                     <div className="text-center py-8">
-                      <MessageSquare className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-                      <h3 className="text-lg font-semibold mb-2">No messages found</h3>
+                      <Database className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+                      <h3 className="text-lg font-semibold mb-2">No users found</h3>
                       <p className="text-muted-foreground mb-4">
-                        {messageSearch ? "Try a different search term" : "No contact messages yet"}
+                        {searchQuery ? "Try a different search term" : "No users in database yet"}
                       </p>
+                      <Button onClick={fetchUsers}>
+                        <RefreshCw className="w-4 h-4 mr-2" />
+                        Refresh Data
+                      </Button>
                     </div>
                   ) : (
-                    <div className="space-y-3 max-h-[600px] overflow-y-auto pr-2">
-                      {filteredMessages.map((message) => (
-                        <div 
-                          key={message.id}
-                          className={`p-4 rounded-lg border cursor-pointer transition-all hover:border-primary/50 ${
-                            selectedMessage?.id === message.id 
-                              ? 'bg-primary/5 border-primary' 
-                              : 'bg-card'
-                          } ${message.status === 'new' ? 'border-l-4 border-l-red-500' : ''}`}
-                          onClick={() => handleViewMessage(message)}
+                    <div className="overflow-x-auto">
+                      <Table>
+                        <TableHeader>
+                          <TableRow>
+                            <TableHead>User</TableHead>
+                            <TableHead>Role</TableHead>
+                            <TableHead>Status</TableHead>
+                            <TableHead>Created</TableHead>
+                            <TableHead>Last Login</TableHead>
+                            <TableHead className="text-center">Admin Actions</TableHead>
+                            <TableHead className="text-center">Tutor Actions</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {filteredUsers.map((user) => (
+                            <TableRow key={user.id}>
+                              <TableCell>
+                                <div>
+                                  <p className="font-medium">{user.displayName || user.email.split('@')[0]}</p>
+                                  <p className="text-sm text-muted-foreground">{user.email}</p>
+                                  {user.id === currentUser?.uid && (
+                                    <Badge variant="outline" className="mt-1 text-xs">
+                                      Current User
+                                    </Badge>
+                                  )}
+                                </div>
+                              </TableCell>
+                              <TableCell>
+                                {getRoleBadge(user.role)}
+                              </TableCell>
+                              <TableCell>
+                                <div className="flex items-center gap-2">
+                                  {user.emailVerified ? (
+                                    <CheckCircle className="w-4 h-4 text-green-500" />
+                                  ) : (
+                                    <XCircle className="w-4 h-4 text-amber-500" />
+                                  )}
+                                  <span>{user.emailVerified ? "Verified" : "Not Verified"}</span>
+                                </div>
+                              </TableCell>
+                              <TableCell>
+                                {new Date(user.createdAt).toLocaleDateString()}
+                                <br />
+                                <span className="text-xs text-muted-foreground">
+                                  {new Date(user.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                </span>
+                              </TableCell>
+                              <TableCell>
+                                {user.lastLogin ? (
+                                  <>
+                                    {new Date(user.lastLogin).toLocaleDateString()}
+                                    <br />
+                                    <span className="text-xs text-muted-foreground">
+                                      {new Date(user.lastLogin).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                    </span>
+                                  </>
+                                ) : (
+                                  "Never"
+                                )}
+                              </TableCell>
+                              
+                              {/* Admin Actions Column */}
+                              <TableCell className="text-center">
+                                <div className="flex justify-center gap-2">
+                                  {user.role === "admin" ? (
+                                    <Button
+                                      size="sm"
+                                      variant="outline"
+                                      onClick={() => handleRemoveAdmin(user.id)}
+                                      disabled={user.id === currentUser?.uid}
+                                      className="text-xs"
+                                    >
+                                      Remove Admin
+                                    </Button>
+                                  ) : (
+                                    <Button
+                                      size="sm"
+                                      onClick={() => handleMakeAdmin(user.id)}
+                                      className="flex items-center gap-1 text-xs"
+                                    >
+                                      <UserPlus className="w-3 h-3" />
+                                      Make Admin
+                                    </Button>
+                                  )}
+                                </div>
+                              </TableCell>
+                              
+                              {/* Tutor Actions Column */}
+                              <TableCell className="text-center">
+                                <div className="flex justify-center gap-2">
+                                  {user.role === "admin" ? (
+                                    <span className="text-xs text-muted-foreground">—</span>
+                                  ) : user.role === "tutor" ? (
+                                    <Button
+                                      size="sm"
+                                      variant="outline"
+                                      onClick={() => handleRemoveTutor(user.id)}
+                                      className="text-xs text-orange-600 border-orange-200 hover:bg-orange-50"
+                                    >
+                                      <UserMinus className="w-3 h-3 mr-1" />
+                                      Remove Tutor
+                                    </Button>
+                                  ) : (
+                                    <Button
+                                      size="sm"
+                                      variant="outline"
+                                      onClick={() => handleMakeTutor(user.id)}
+                                      className="text-xs text-green-600 border-green-200 hover:bg-green-50"
+                                    >
+                                      <GraduationCap className="w-3 h-3 mr-1" />
+                                      Make Tutor
+                                    </Button>
+                                  )}
+                                </div>
+                              </TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            {/* Messages Tab */}
+            <TabsContent value="messages">
+              <div className="grid lg:grid-cols-3 gap-6">
+                {/* Messages List */}
+                <Card className="lg:col-span-2">
+                  <CardHeader>
+                    <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                      <div>
+                        <CardTitle className="flex items-center gap-2">
+                          <Mail className="w-5 h-5" />
+                          Contact Messages
+                        </CardTitle>
+                        <CardDescription>
+                          View and manage contact form submissions
+                        </CardDescription>
+                      </div>
+                      <div className="flex items-center gap-2 w-full md:w-auto">
+                        <div className="relative flex-1 md:flex-none">
+                          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                          <Input
+                            placeholder="Search messages..."
+                            className="pl-9"
+                            value={messageSearch}
+                            onChange={(e) => setMessageSearch(e.target.value)}
+                          />
+                        </div>
+                        <Button 
+                          variant="outline" 
+                          onClick={fetchContactMessages} 
+                          disabled={messagesLoading}
+                          className="flex items-center gap-2"
                         >
-                          <div className="flex justify-between items-start mb-2">
-                            <div>
-                              <h4 className="font-medium text-foreground">
-                                {message.subject}
-                              </h4>
-                              <p className="text-sm text-muted-foreground">
-                                From: {message.name} • {message.email}
-                              </p>
+                          <RefreshCw className={`w-4 h-4 ${messagesLoading ? 'animate-spin' : ''}`} />
+                          Refresh
+                        </Button>
+                      </div>
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    {messagesLoading ? (
+                      <div className="text-center py-8">
+                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
+                        <p className="mt-2 text-muted-foreground">Loading messages...</p>
+                      </div>
+                    ) : filteredMessages.length === 0 ? (
+                      <div className="text-center py-8">
+                        <MessageSquare className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+                        <h3 className="text-lg font-semibold mb-2">No messages found</h3>
+                        <p className="text-muted-foreground mb-4">
+                          {messageSearch ? "Try a different search term" : "No contact messages yet"}
+                        </p>
+                      </div>
+                    ) : (
+                      <div className="space-y-3 max-h-[600px] overflow-y-auto pr-2">
+                        {filteredMessages.map((message) => (
+                          <div 
+                            key={message.id}
+                            className={`p-4 rounded-lg border cursor-pointer transition-all hover:border-primary/50 ${
+                              selectedMessage?.id === message.id 
+                                ? 'bg-primary/5 border-primary' 
+                                : 'bg-card'
+                            } ${message.status === 'new' ? 'border-l-4 border-l-red-500' : ''}`}
+                            onClick={() => handleViewMessage(message)}
+                          >
+                            <div className="flex justify-between items-start mb-2">
+                              <div>
+                                <h4 className="font-medium text-foreground">
+                                  {message.subject}
+                                </h4>
+                                <p className="text-sm text-muted-foreground">
+                                  From: {message.name} • {message.email}
+                                </p>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                {getStatusBadge(message.status)}
+                                <span className="text-xs text-muted-foreground">
+                                  {getTimeAgo(message.timestamp)}
+                                </span>
+                              </div>
                             </div>
-                            <div className="flex items-center gap-2">
-                              {getStatusBadge(message.status)}
-                              <span className="text-xs text-muted-foreground">
-                                {getTimeAgo(message.timestamp)}
+                            <p className="text-sm text-muted-foreground line-clamp-2">
+                              {message.message}
+                            </p>
+                            {message.serviceType && (
+                              <div className="mt-2">
+                                <Badge variant="outline" className="text-xs">
+                                  <Tag className="w-3 h-3 mr-1" />
+                                  {message.serviceType}
+                                </Badge>
+                              </div>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+
+                {/* Message Detail Panel */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Eye className="w-5 h-5" />
+                      Message Details
+                    </CardTitle>
+                    <CardDescription>
+                      {selectedMessage ? "View and respond to message" : "Select a message to view details"}
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    {selectedMessage ? (
+                      <div className="space-y-6">
+                        {/* Message Info */}
+                        <div className="space-y-4">
+                          <div>
+                            <h3 className="font-bold text-lg">{selectedMessage.subject}</h3>
+                            <div className="flex items-center gap-2 mt-1">
+                              {getStatusBadge(selectedMessage.status)}
+                              <span className="text-sm text-muted-foreground">
+                                {new Date(selectedMessage.timestamp).toLocaleString()}
                               </span>
                             </div>
                           </div>
-                          <p className="text-sm text-muted-foreground line-clamp-2">
-                            {message.message}
-                          </p>
-                          {message.serviceType && (
-                            <div className="mt-2">
-                              <Badge variant="outline" className="text-xs">
-                                <Tag className="w-3 h-3 mr-1" />
-                                {message.serviceType}
-                              </Badge>
-                            </div>
-                          )}
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
 
-              {/* Message Detail Panel */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Eye className="w-5 h-5" />
-                    Message Details
-                  </CardTitle>
-                  <CardDescription>
-                    {selectedMessage ? "View and respond to message" : "Select a message to view details"}
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  {selectedMessage ? (
-                    <div className="space-y-6">
-                      {/* Message Info */}
-                      <div className="space-y-4">
-                        <div>
-                          <h3 className="font-bold text-lg">{selectedMessage.subject}</h3>
-                          <div className="flex items-center gap-2 mt-1">
-                            {getStatusBadge(selectedMessage.status)}
-                            <span className="text-sm text-muted-foreground">
-                              {new Date(selectedMessage.timestamp).toLocaleString()}
-                            </span>
-                          </div>
-                        </div>
-
-                        {/* Sender Info */}
-                        <div className="grid grid-cols-2 gap-3 p-3 bg-muted rounded-lg">
-                          <div>
-                            <p className="text-sm font-medium text-muted-foreground">From</p>
-                            <p className="font-medium">{selectedMessage.name}</p>
-                          </div>
-                          <div>
-                            <p className="text-sm font-medium text-muted-foreground">Email</p>
-                            <p className="font-medium">{selectedMessage.email}</p>
-                          </div>
-                          {selectedMessage.phone && (
+                          {/* Sender Info */}
+                          <div className="grid grid-cols-2 gap-3 p-3 bg-muted rounded-lg">
                             <div>
-                              <p className="text-sm font-medium text-muted-foreground">Phone</p>
-                              <p className="font-medium">{selectedMessage.phone}</p>
+                              <p className="text-sm font-medium text-muted-foreground">From</p>
+                              <p className="font-medium">{selectedMessage.name}</p>
                             </div>
-                          )}
-                          {selectedMessage.serviceType && (
                             <div>
-                              <p className="text-sm font-medium text-muted-foreground">Service</p>
-                              <p className="font-medium">{selectedMessage.serviceType}</p>
+                              <p className="text-sm font-medium text-muted-foreground">Email</p>
+                              <p className="font-medium">{selectedMessage.email}</p>
                             </div>
-                          )}
-                        </div>
+                            {selectedMessage.phone && (
+                              <div>
+                                <p className="text-sm font-medium text-muted-foreground">Phone</p>
+                                <p className="font-medium">{selectedMessage.phone}</p>
+                              </div>
+                            )}
+                            {selectedMessage.serviceType && (
+                              <div>
+                                <p className="text-sm font-medium text-muted-foreground">Service</p>
+                                <p className="font-medium">{selectedMessage.serviceType}</p>
+                              </div>
+                            )}
+                          </div>
 
-                        {/* Message Content */}
-                        <div>
-                          <p className="text-sm font-medium text-muted-foreground mb-2">Message</p>
-                          <div className="p-3 bg-muted rounded-lg whitespace-pre-wrap">
-                            {selectedMessage.message}
+                          {/* Message Content */}
+                          <div>
+                            <p className="text-sm font-medium text-muted-foreground mb-2">Message</p>
+                            <div className="p-3 bg-muted rounded-lg whitespace-pre-wrap">
+                              {selectedMessage.message}
+                            </div>
                           </div>
                         </div>
-                      </div>
 
-                      {/* Actions */}
-                      <div className="space-y-4">
-                        <div className="flex flex-wrap gap-2">
-                          {selectedMessage.status !== "replied" && (
+                        {/* Actions */}
+                        <div className="space-y-4">
+                          <div className="flex flex-wrap gap-2">
+                            {selectedMessage.status !== "replied" && (
+                              <Button
+                                size="sm"
+                                onClick={() => handleMarkAsReplied(selectedMessage.id)}
+                                className="flex items-center gap-1"
+                              >
+                                <Check className="w-4 h-4" />
+                                Mark as Replied
+                              </Button>
+                            )}
+                            {selectedMessage.status !== "resolved" && (
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => handleMarkAsResolved(selectedMessage.id)}
+                              >
+                                Mark as Resolved
+                              </Button>
+                            )}
                             <Button
                               size="sm"
-                              onClick={() => handleMarkAsReplied(selectedMessage.id)}
+                              variant="destructive"
+                              onClick={() => handleDeleteMessage(selectedMessage.id)}
                               className="flex items-center gap-1"
                             >
-                              <Check className="w-4 h-4" />
-                              Mark as Replied
+                              <Trash2 className="w-4 h-4" />
+                              Delete
                             </Button>
-                          )}
-                          {selectedMessage.status !== "resolved" && (
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={() => handleMarkAsResolved(selectedMessage.id)}
-                            >
-                              Mark as Resolved
-                            </Button>
-                          )}
-                          <Button
-                            size="sm"
-                            variant="destructive"
-                            onClick={() => handleDeleteMessage(selectedMessage.id)}
-                            className="flex items-center gap-1"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                            Delete
-                          </Button>
-                        </div>
+                          </div>
 
-                        {/* Reply Section */}
-                        <div>
-                          <p className="text-sm font-medium text-muted-foreground mb-2">Reply to Sender</p>
-                          <Textarea
-                            placeholder="Type your reply here..."
-                            value={replyText}
-                            onChange={(e) => setReplyText(e.target.value)}
-                            rows={4}
-                            className="mb-2"
-                          />
-                          <Button 
-                            onClick={handleSendReply} 
-                            disabled={!replyText.trim()}
-                            className="w-full"
-                          >
-                            <Mail className="w-4 h-4 mr-2" />
-                            Send Reply
-                          </Button>
+                          {/* Reply Section */}
+                          <div>
+                            <p className="text-sm font-medium text-muted-foreground mb-2">Reply to Sender</p>
+                            <Textarea
+                              placeholder="Type your reply here..."
+                              value={replyText}
+                              onChange={(e) => setReplyText(e.target.value)}
+                              rows={4}
+                              className="mb-2"
+                            />
+                            <Button 
+                              onClick={handleSendReply} 
+                              disabled={!replyText.trim()}
+                              className="w-full"
+                            >
+                              <Mail className="w-4 h-4 mr-2" />
+                              Send Reply
+                            </Button>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  ) : (
-                    <div className="text-center py-12">
-                      <MessageSquare className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-                      <p className="text-muted-foreground">
-                        Select a message from the list to view details
-                      </p>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-            </div>
-          </TabsContent>
-        </Tabs>
-
-        {/* System Info */}
-        <Card className="mt-8">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Settings className="w-5 h-5" />
-              System Information
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="space-y-2">
-                <p className="text-sm font-medium text-muted-foreground">Current Admin</p>
-                <p className="font-medium">{currentUser?.email}</p>
-                <p className="text-sm text-muted-foreground">UID: {currentUser?.uid}</p>
+                    ) : (
+                      <div className="text-center py-12">
+                        <MessageSquare className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+                        <p className="text-muted-foreground">
+                          Select a message from the list to view details
+                        </p>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
               </div>
-              <div className="space-y-2">
-                <p className="text-sm font-medium text-muted-foreground">Firestore Status</p>
-                <div className="flex items-center gap-2">
-                  <div className={`w-2 h-2 rounded-full ${users.length > 0 ? 'bg-green-500' : 'bg-amber-500'}`}></div>
-                  <p className="font-medium">
-                    {users.length > 0 ? "Connected" : "Initializing"}
+            </TabsContent>
+          </Tabs>
+
+          {/* System Info */}
+          <Card className="mt-8">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Settings className="w-5 h-5" />
+                System Information
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="space-y-2">
+                  <p className="text-sm font-medium text-muted-foreground">Current Admin</p>
+                  <p className="font-medium">{currentUser?.email}</p>
+                  <p className="text-sm text-muted-foreground">UID: {currentUser?.uid}</p>
+                </div>
+                <div className="space-y-2">
+                  <p className="text-sm font-medium text-muted-foreground">Firestore Status</p>
+                  <div className="flex items-center gap-2">
+                    <div className={`w-2 h-2 rounded-full ${users.length > 0 ? 'bg-green-500' : 'bg-amber-500'}`}></div>
+                    <p className="font-medium">
+                      {users.length > 0 ? "Connected" : "Initializing"}
+                    </p>
+                  </div>
+                  <p className="text-sm text-muted-foreground">
+                    {users.length} user(s) • {stats.admins} admin(s) • {stats.tutors} tutor(s) • {contactMessages.length} message(s)
                   </p>
                 </div>
-                <p className="text-sm text-muted-foreground">
-                  {users.length} user(s) • {contactMessages.length} message(s)
-                </p>
+                <div className="space-y-2">
+                  <p className="text-sm font-medium text-muted-foreground">Permissions</p>
+                  <p className="font-medium">Full Access</p>
+                  <p className="text-sm text-muted-foreground">
+                    Can manage users, tutors, messages, and system settings
+                  </p>
+                </div>
               </div>
-              <div className="space-y-2">
-                <p className="text-sm font-medium text-muted-foreground">Permissions</p>
-                <p className="font-medium">Full Access</p>
-                <p className="text-sm text-muted-foreground">
-                  Can manage users, messages, and system settings
-                </p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        </div>
       </div>
-    </div>
+    </Layout> // 👈 ONLY THIS LINE ADDED (closing tag)
   );
 };
 

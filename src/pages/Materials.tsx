@@ -28,13 +28,37 @@ const Materials = () => {
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [userRole, setUserRole] = useState<string | null>(null);
   
   const isAdmin = user?.email === "bwalyaevans09@gmail.com";
+  const canUpload = isAdmin || userRole === "tutor";
 
   // Fetch materials from GitHub via jsDelivr
   useEffect(() => {
     fetchMaterials();
   }, []);
+
+  // Fetch user role from Firestore
+  useEffect(() => {
+    if (user) {
+      const fetchUserRole = async () => {
+        try {
+          const { doc, getDoc } = await import("firebase/firestore");
+          const { db } = await import("@/firebase");
+          const userRef = doc(db, "users", user.uid);
+          const userSnap = await getDoc(userRef);
+          if (userSnap.exists()) {
+            const data = userSnap.data();
+            setUserRole(data.role || "user");
+            console.log("User role:", data.role);
+          }
+        } catch (error) {
+          console.error("Error fetching user role:", error);
+        }
+      };
+      fetchUserRole();
+    }
+  }, [user]);
 
   const fetchMaterials = async () => {
     try {
@@ -92,8 +116,8 @@ const Materials = () => {
       return;
     }
     
-    if (!isAdmin) {
-      toast.error("Only admins can upload");
+    if (!canUpload) {
+      toast.error("Only admins and tutors can upload");
       return;
     }
 
@@ -216,17 +240,18 @@ const Materials = () => {
             <h1 className="text-3xl md:text-4xl font-bold">IT Society Materials</h1>
             <p className="text-muted-foreground mt-2">
               {materials.length} resources available • 
+              {userRole && <span className="ml-2 text-xs">Role: {userRole}</span>}
             </p>
           </div>
         </div>
 
-        {/* Admin Upload Section */}
-        {isAdmin && (
+        {/* Upload Section - Visible to Admins and Tutors */}
+        {canUpload && (
           <Card className="mb-8 border-2 border-dashed border-blue-300 bg-blue-50/50">
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-blue-700">
                 <Upload className="w-5 h-5" />
-                Admin Upload
+                Upload Materials
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -274,7 +299,7 @@ const Materials = () => {
               <FileText className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
               <h3 className="text-lg font-semibold mb-2">No materials yet</h3>
               <p className="text-muted-foreground">
-                {isAdmin ? "Upload the first material using the form above!" : "Check back later for materials."}
+                {canUpload ? "Upload the first material using the form above!" : "Check back later for materials."}
               </p>
             </CardContent>
           </Card>
@@ -309,15 +334,6 @@ const Materials = () => {
             ))}
           </div>
         )}
-
-        {/* Info Card */}
-        <Card className="mt-8 bg-muted/50">
-          <CardContent className="pt-6">
-            <p className="text-sm text-muted-foreground">
-              <strong>📥 How it works:</strong> {isAdmin ? "You can upload files using the admin panel above." : ""}
-            </p>
-          </CardContent>
-        </Card>
       </div>
     </Layout>
   );
